@@ -1,7 +1,8 @@
-package com.example.javaversiontest;
+package com.example.javeverison11;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Nonnull;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -18,10 +20,16 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SpringBootTest
-class JavaVersionTestApplicationTests {
+class JaveVerison11ApplicationTests {
 
     @Test
     void contextLoads() {
@@ -119,5 +127,75 @@ class JavaVersionTestApplicationTests {
         System.out.println("Body: "+response.body());
     }
 
-}
+    @Test
+    @DisplayName("자바 11 비동기 post요청")
+    void AsyncPostTest() throws MalformedURLException, ExecutionException, InterruptedException {
+        URL url = new URL("http://localhost:8080/api/test");
+        HttpClient client = HttpClient.newHttpClient();
 
+        String data = "kms async test";
+        HttpRequest request =
+                HttpRequest.newBuilder()
+                        .uri(URI.create(String.valueOf(url)))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(data))
+                        .build();
+
+        CompletableFuture<HttpResponse<String>> responseFuture = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+
+        HttpResponse<String> response = responseFuture.get();
+        System.out.println(response.body());
+    }
+    
+    @Test
+    @DisplayName("자바 11toArray")
+    void toArrayBeforeTest(){
+        List<String> list = List.of("kms","test","java11");
+        List<Integer> list2 = List.of(1,2,3);
+        Object[] strings1 = list.toArray();
+
+        String[] strings2 = list.toArray(new String[list.size()]);
+        String[] strings3 = list.toArray(new String[0]);
+        list.toArray(String[]::new);
+        Integer[] integers = list2.toArray(Integer[]::new);
+        System.out.println(integers[0]);
+
+        System.out.println(list.get(0).hashCode());
+        System.out.println(strings2[0].hashCode());
+        System.out.println(strings3[0].hashCode());
+    }
+
+    @Test
+    @DisplayName("자바 11 추가적인 String 메소드")
+    void newStringMethodTest(){
+        // 문자열 앞 뒤 공백 제거 함수 strip()
+        String stripTest = "              1 2 3 4 5 6          ";
+        System.out.println(stripTest.strip() + "7");
+
+        //문자열 앞 공백 제거 함수 stripLeading()
+        System.out.println(stripTest.stripLeading() +"7");
+
+        //문자열 뒤 공백 제거 함수 stripTailing()
+        System.out.println(stripTest.stripTrailing() + "7");
+
+        String trimTest = "\u2003\u2003\u2003\u2003\u2003kms";
+
+        System.out.println(trimTest);
+        System.out.println(trimTest.trim());
+        System.out.println(trimTest.strip());
+
+        //String.isBlank()
+        String isBlankTest = "          ";
+        System.out.println(isBlankTest.isBlank());
+
+        //String.repeat()
+        System.out.println("hi?".repeat(10));
+
+        //String.lines()
+        Stream<String> lines = "foo\nbar\nbaz".lines();
+        lines.forEachOrdered(System.out::println);
+
+    }
+
+
+}

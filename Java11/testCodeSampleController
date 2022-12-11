@@ -1,0 +1,19 @@
+package com.example.javaversiontest.Controller;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class SampleController {
+
+    @PostMapping("/api/test")
+    String testFunction(@RequestBody String input){
+        return input;
+    }
+}
+
+
+// HttpClient에 관한 테스트용 컨트롤러
+
+//spring boot 3.0.0은 java 17 버전을 요구하므로 그 이전 버전 사용해야함.

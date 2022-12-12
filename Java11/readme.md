@@ -4,7 +4,7 @@
 
 일반적인 소프트웨어는 새로운 버전이 출시될 때마다 이전 버전에 대한 업데이트를 중지하는데, LTS는 긴 기간 동안 지속적인 지원을 받을 수 있기 때문에, 기업이나 조직 등에서 사용하여 안정성을 어느정도 보장받을 수 있다.
 
-## ✏️ Local-Variable Syntax for Lambda Parameters
+## ✏️1. Local-Variable Syntax for Lambda Parameters
 
 Java10에서 `var`에 대해 알아봤다.  
 
@@ -68,7 +68,7 @@ System.out.println(cnt);
 
 두 가지를 혼용하지 말라고 한다. **타입을 모두 생략하거나 타입을 모두 적거나 모든 타입에대해 `var`를 쓰거나 하라고 한다.**
 
-## ✏️ HTTP Client (Standard)
+## ✏️2. HTTP Client (Standard)
 
 Java11버전 이전에는 HTTP통신을 하려면 많은 양의 코드를 요구하였다.
 
@@ -177,7 +177,7 @@ void AsyncPostTest() throws MalformedURLException, ExecutionException, Interrupt
 
 ![image](https://user-images.githubusercontent.com/30401054/206904518-36b8e054-8a77-4299-9ccc-9dbae8e3f956.png)
 
-## ✏️ New Collection.toArray() Method
+## ✏️3. New Collection.toArray() Method
 
 기존 `Collection` 인터페이스는 두 가지의 `toArray()`라는 컬렉션을 배열로 바꾸는 함수를 제공했다.
 
@@ -217,7 +217,7 @@ default <T> T[] toArray(IntFunction<T[]> generator) {
 문제는 이 메소드를 오버라이드 하지 않는 컬렉션 구현체가 많다는 것이다.
 
 
-## ✏️ New String Methods
+## ✏️4. New String Methods
 
 Java 11버전에서 `String`클래스에 함수들이 추가적으로 생겼다.
 
@@ -283,6 +283,178 @@ Stream<String> lines = "foo\nbar\nbaz".lines();
 lines.forEachOrdered(System.out::println);
 ```
 
-## ✏️ Files.readString() und writeString()
+## ✏️5. Files.readString() und writeString()
+
+Java 6 이후로 텍스트 파일을 읽고 쓰는 것이 더욱 간편해졌다.
+Java 6에서는 파일을 읽기 위해 FileInputStream을 열고, InputStreamReader와 BufferedReader를 사용해야 했고, 텍스트 파일의 각 줄을 StringBuilder로 읽은 다음, `finally`를 통해 reader와 stream을 닫아야 했다.
+
+Java 7에서는 Files.newBufferedWriter()와 Files.newBufferedReader()를 사용하면 `finally`구문이 없어도 reader와 stream을 닫을 수 있어서 더 간편하게 구현이 가능해졌다.
+
+```java
+@Test
+@DisplayName("자바7 파일 입출력")
+void Java7FileWriteRead() throws IOException{
+        //write
+        Path path = Paths.get("./samplejava7.txt");
+        String text="java 7 file test";
+        try(BufferedWriter writer = Files.newBufferedWriter(path,StandardCharsets.UTF_8)){
+            writer.write(text);
+        }
+
+        //read
+        StringBuilder sb = new StringBuilder();
+        try(BufferedReader reader = Files.newBufferedReader(path,StandardCharsets.UTF_8)){
+            String line;
+            while((line = reader.readLine()) != null){
+                sb.append(line).append('\n');
+            }
+        }
+        System.out.println(sb.toString());
+}
+```
+![image](https://user-images.githubusercontent.com/30401054/206970309-f8ce4463-f08d-4892-8b0a-0aa417aa0355.png)
+
+Java11은 더욱 간편하게 표현이 가능해졌다.
+
+```java
+@Test
+@DisplayName("자바11 파일 입출력")
+void Java11FileWriteRead() throws IOException{
+        //write
+        Path path = Paths.get("./samplejava11.txt");
+        String text="java 11 file test";
+        Files.writeString(path,text,StandardCharsets.UTF_8);
+
+        //read
+        String reader = Files.readString(path,StandardCharsets.UTF_8);
+        System.out.println(reader.toString());
+}
+```
+
+![image](https://user-images.githubusercontent.com/30401054/206970695-71bfa9b7-c86e-4bba-8aaa-559c9a496b6d.png)
+
+-----
+
+## ✏️6. Path.of()
+
+이전에 `Path`객체를 생성하려면 `Paths.get()`을 사용했는데, 이는 getter처럼 보여서 혼동이 있었다고 한다.
+
+그래서 `Path.of`로 바꾸고 기능은 동일하게 바꾸었다.
+
+실제로 `Paths.get()`메소드의 구현 방식을 보면 `Path.of()`를 호출하게 되어있다.
+
+```java
+public static Path get(String first, String... more) {
+        return Path.of(first, more);
+}
+```
+
+즉, 혼동을 줄이기 위해 이름을 바꾸었다는 것이다.
+
+그래서 위의 예제는 다음 코드로 바꿀 수 있다.
+
+```java
+@Test
+@DisplayName("자바11 파일 입출력")
+void Java11FileWriteRead() throws IOException{
+        //write
+        Path path = Path.of("./samplejava11.txt");
+        String text="java 11 file test";
+        Files.writeString(path,text,StandardCharsets.UTF_8);
+
+        //read
+        String reader = Files.readString(path,StandardCharsets.UTF_8);
+        System.out.println(reader.toString());
+}
+```
+
+-----
+
+## ✏️7. Epsilon: A No-Op Garbage Collector
+
+Epsilon GC라는 가비지 컬렉터가 추가되었다.
+
+Epsilon GC는 힙에 할당된 객체들을 관리하는 가비지 컬렉터인데 일반적인 가비지 컬렉터 기능인 메모리해제 기능을 수행하지 않는다.
+
+왜냐하면 Epsilon GC는 시스템의 성능을 측정하거나, 시스템에서 가비지 컬렉션이 정상적으로 수행되는지 확인하는데 쓰이기 때문이다.
+
+```bash
+-XX:+UseEpsilonGC
+```
+
+이 커맨드를 java명령어에 추가해서 Epsilon GC를 사용할 수 있게 되었다.
+
+-----
+
+## ✏️8. Launch Single-File Source-Code Programs
+
+```java
+public class Hello {
+  public static void main(String[] args) {
+    if (args.length > 0) {
+      System.out.printf("Hello %s!%n", args[0]);
+    } else {
+      System.out.println("Hello!");
+    }
+  }
+}
+```
+
+이러한 코드가 있을때 이를 실행하려면 컴파일을 거치고 실행했어야했다.
+
+```bash
+$ javac Hello.java
+$ java Hello Anna
+
+⟶
+
+Hello Anna!
+```
+
+Java 11부터는 컴파일 명령어를 생략할 수 있게 되었다.
+
+```bash
+$ java Hello.java Anna
+
+⟶
+
+Hello Anna!
+```
+
+위와 같이 달라져서 소스코드는 작업메모리에서 컴파일되고 실행이 되는 하나의 과정을 거치게 된다.
+
+-----
+
+## ✏️8. Nest-Based Access Control
+
+> 이부분은 해석하기 어려워서 다른사람글을 가져왔습니다.
+
+출처: <https://dreamchaser3.tistory.com/4>
+
+```java
+class Test {  
+    static class Nest1 {  
+        private int nest1Var; 
+     } 
+     static class Nest2 {  
+        private int nest2Var;  
+    }
+ }
+```
+
+위와 같이 nested class의 경우, 'Test', 'Nest1', 'Nest2'는 모두 'nestmate'이다. 기존 JVM 상에서는 nestmate끼리 private 멤버 변수를 접근하려면 컴파일러가 중간에 bridge method를 만들어야 했다. 따라서, reflection을 사용하여 nestmate class의 private 멤버 변수에 접근하려고 하면, llegalAccessException이 발생한다. 이러한 모순을 해결하고자, 새로운 'nest'라는 class file 개념을 도입해 하나의 중첩 클래스이지만 서로 다른 클래스파일로 분리하여 bridge method의 도움 없이도 서로의 private 멤버에 접근할 수 있도록 하였다.
+
+-----
+
+## ✏️9. Java Flight Recorder
+
+Java에는 개발을 도와주는 많은 분석 툴들이 있다. 근데 애플리케이션 런타임에 발생하는 문제들을 잡기는 보통 어렵다. 런타임에 발생하는 문제를 재발생 시키거나 재구현 하는게 까다로운 일인데 Java Flight Recoder는 런타임의 JVM 데이터나 여러환경들을 실시간으로 저장하고 분석하기 쉬운 파일로 저장할 수 있게 하여 에러 분석하는데 도와준다.
+
+Java Flight Recorder는 Oracle JDK에는 상용화 되었는데, 이번에 OpenJDK의 일부가 되면서 자유롭게 사용할 수 있게 되었다.
+
+
+
+
+
 
 

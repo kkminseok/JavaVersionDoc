@@ -425,7 +425,7 @@ Hello Anna!
 
 -----
 
-## ✏️8. Nest-Based Access Control
+## ✏️9. Nest-Based Access Control
 
 > 이부분은 해석하기 어려워서 다른사람글을 가져왔습니다.
 
@@ -446,15 +446,48 @@ class Test {
 
 -----
 
-## ✏️9. Java Flight Recorder
+## ✏️10. Java Flight Recorder
 
 Java에는 개발을 도와주는 많은 분석 툴들이 있다. 근데 애플리케이션 런타임에 발생하는 문제들을 잡기는 보통 어렵다. 런타임에 발생하는 문제를 재발생 시키거나 재구현 하는게 까다로운 일인데 Java Flight Recoder는 런타임의 JVM 데이터나 여러환경들을 실시간으로 저장하고 분석하기 쉬운 파일로 저장할 수 있게 하여 에러 분석하는데 도와준다.
 
 Java Flight Recorder는 Oracle JDK에는 상용화 되었는데, 이번에 OpenJDK의 일부가 되면서 자유롭게 사용할 수 있게 되었다.
 
+```bash
+#https://docs.oracle.com/javacomponents/jmc-5-4/jfr-runtime-guide/run.htm#JFRUH164
+# 이런식으로 실행이 가능하다.
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=myrecording.jfr myApp
+```
 
+-----
 
+## ✏️11. JDK Mission Control
 
+JDK Mission Control은 Java 개발자를 위한 도구 중 하나로, Java 프로그램의 디버깅과 성능 모니터링을 돕는 데 사용된다. 이 도구는 JDK에 포함되어 있으며, Java 프로그램을 실행하는 동안 사용자가 실행 중인 작업을 모니터링하고 디버깅을 수행할 수 있도록 도와준다. 
+또한, 이 도구를 사용하면 Java 프로그램의 성능을 향상시킬 수 있는 방법을 찾을 수 있다고 한다.
+
+-----
+
+## ✏️ 12. ZGC: A Scalable Low-Latency Garbage Collector
+
+**Z Garbage Collector** = ZGC는 Oracle에서 개발한 새로운 가비지 컬렉터로 전체 GC의 STW(Stop-The-World)하는 시간을 최대 10ms까지 줄여버린다. Java11기준 리눅스에서만 사용이 가능하고 다음 명령어를 통해 사용할 수 있다.
+
+```bash
+-XX:+UnlockExperimentalVMOptions -XX:+UseZGC
+```
+
+여담으로 ZGC는 Java15버전에서 프러덕션으로 상용화 되었다.
+
+-----
+
+## 결론
+
+Java11버전 에서는 람다 표현식에 `var`를 사용할 수 있게 되었고,
+
+새로운 `HttpClient`클래스가 나와 편리성을 도왔으며, 파일 입출력의 변화로 단 한 줄로 파일 입출력이 가능해졌다. 또한, `Path`클래스에 대한 변화를 줘서 코드 가독성이 힘을 주었고, `Epsilon GC`를 도입함으로써 시스템 성능을 향상 시켰다. 
+
+`java` 명령을 통해 별도의 컴파일 없이 컴파일부터 실행까지 진행할 수 있게 되었다.
+
+**Nest-Based Access Control**를 통해서 컴파일러가 nested class를 인식하기 편하게 되었고, 여러 분석툴(Flight Recorder, JDK Mission Control)을 통해 애플리케이션을 추적, 모니털이 하기 쉬워졌다.
 
 
 
